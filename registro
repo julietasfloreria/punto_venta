@@ -1,0 +1,1176 @@
+<?PHP
+	include("conexion.php");
+?>
+<head>
+	<title>Julietas Floreria</title>
+	<link rel="icon" type="image/png" href="logo1.png" />
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script
+  src="https://code.jquery.com/jquery-3.3.1.js" crossorigin="anonymous"></script>
+</head>
+<body background="fondo1.png" style="background-size: cover;">
+<style>
+	#transparente{ 
+		background-color:#000000a1;
+	    position:fixed;
+	    left:0px;
+	    top:0px;
+	    z-index:21;
+	    opacity:0.6;
+	    width:100%;
+	    height:100%;
+    }
+    .headers {
+	    background: #e4e4e4;
+	    border-bottom: 1px solid #ccc;
+	    border-top: 1px solid #ccc;
+	}
+	hr{
+		margin: 50px 0 5px 0;
+	}
+	.admin{
+		display:none;
+	}
+	h4{
+		font-size:15px;
+	}
+	h5{
+		font-size:13px;
+	}
+</style>
+<div id="transparente" style="display:none"></div>
+
+<!-- INPUTS AUXILIARES -->
+	<input id="valor_aux" value="0" style="display:none">
+	<input class='suma_flor_cant' id='suma_oculto0' style="display:none">
+	<input id='id_renglon' style="display:none">
+	<input id="verifica_login" value="0" style="display:none; margin-left:20px;">
+	<input id='pagado1_o' style="display:none">
+	
+<!-- 	ALERTS -->
+	<div class="alert alert-warning" role="alert" id="falta" style="position:absolute; z-index:1001; margin-left:33%; display:none"> 
+		<strong>No registrado: </strong> Falta agregar información de la venta. 
+	</div>
+	<div class="alert alert-success" role="alert" id="guardado" style="position:absolute; z-index:1001; margin-left:33%; display:none"> 
+		<strong>Registrado: </strong> Se a registrado una venta correctamente. 
+	</div>
+	<div class="alert alert-success" role="alert" id="actualizado" style="position:absolute; z-index:1001; margin-left:33%; display:none"> 
+		<strong>Actualizado: </strong> Registro actualizado correctamente.
+	</div>
+	<div class="alert alert-danger" role="alert" id="eliminado" style="position:absolute; z-index:1001; margin-left:33%; display:none"> 
+		<strong>Eliminado: </strong> Registro eliminado correctamente.
+	</div>
+
+<div class="container-fluid" style="color:#304FDB; padding:18px;">        
+    <form class=" navbar navbar-default" role="form" style="background-color:#f2f2f2f2; background-image:none; overflow-y:hidden; overflow-x:hidden; min-height:300px; color:#333" id="form-req" data-toggle="validator" autocomplete="off">
+        <div class="row" style="border: 1px solid rgb(204, 204, 204); min-height: 300px; margin: 0px; display: block;">
+            <div class="col-xs-12" style="margin:0px;padding-bottom:10px">
+                <div class="row">
+
+	                
+<!-- COMENTARIO REGISTRO -->
+		<div id="alert_comentario_registro" style = "position:fixed; height:190px; width:400px; top:calc(50% - 105px); left:calc(55% - 300px); background-color:white; z-index:100; border-radius:4px; border:1px solid rgb(3, 110, 142); display:none">
+			<div>
+				<div class="pull-right danger">
+					<button type="button" class="close btn" style="padding:5px 10px;" onclick="$('#alert_comentario_registro').hide(); $('#transparente').hide();">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+			</div>
+			<div style=" width: 100%; background-color:#0489B1; padding: 1px 0px 1px 10px;">
+				<h4 id="titulo_comentario" style="color:white;" >Alerta de confirmacion </h4>
+			</div>
+			<div style = "margin:10px;">
+				<div style="text-align:center; margin-top:50px; margin-bottom:10px;"> Por favor confirme registro. </div>
+				<div style="margin-left:60px; margin-top:15px;">
+					<button type="button" class="btn btn-success" onclick="guardar_registro()" style="margin-top:10px; margin-left:15px; float:left;"><span class="glyphicon glyphicon-success"></span> Guardar</button>
+					<button type="button" class="btn btn-warning" style="margin-top: 10px; margin-left: 50px; float: left;" onclick="$('#alert_comentario_registro').hide(); $('#transparente').hide();"><span class="glyphicon glyphicon-warning"></span> Cancelar</button>
+				</div>
+			</div>
+		</div>
+<!-- COMENTARIO REGISTRO -->
+
+<!-- COMENTARIO USUARIO -->
+		<div id="alert_comentario_usuario" style = "position:fixed; height:190px; width:400px; top:calc(50% - 105px); left:calc(55% - 300px); background-color:white; z-index:100; border-radius:4px; border:1px solid rgb(3, 110, 142); display:none">
+			<div>
+				<div class="pull-right danger">
+					<button type="button" class="close btn" style="padding:5px 10px;" onclick="$('#alert_comentario_usuario').hide(); $('#transparente').hide();">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+			</div>
+			<div style=" width: 100%; background-color:#0489B1; padding: 1px 0px 1px 10px;">
+				<h4 id="titulo_comentario" style="color:white;" >Cambiar de usuario </h4>
+			</div>
+			<div class="col-xs-12" style="padding:10px 45px 15px 30px">
+				<div class="col-xs-12 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Usuario</span>
+					    <input type="text" class="form-control" id="usuario">
+				    </div>
+				</div>
+				<div class="col-xs-12 form-group" style="margin-bottom: 0px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Contraseña</span>
+					    <input type="password" class="form-control" id="contraseña" >
+				    </div>
+				</div>
+				<label id="mensaje_usuario" style="display:none; margin-bottom:-20px; margin-left:78px; font-size:11px; color:#cc0d0d; margin-top:-1px;">
+			</div>
+			<div style = "margin:10px;">
+				<div style="margin-left:17%;">
+					<button type="button" class="btn btn-primary" onclick="login()" style=" margin-left:15px; float:left;"><span class="glyphicon glyphicon-success"></span> Ingresar</button>
+					<button type="button" class="btn btn-warning" onclick="location.reload(true);" style=" margin-left:15px; float:left;"><span class="glyphicon glyphicon-success"></span> Cerrar sesion</button>
+				</div>
+			</div>
+		</div>
+<!-- COMENTARIO USUARIO -->
+
+<!-- EDITAR REGISTRO -->
+		<div id="alert_comentario_registroed" style = "position:fixed; width:450px; top:calc(20% - 105px); left:calc(55% - 300px); background-color:white; z-index:100; border-radius:4px; border:1px solid rgb(3, 110, 142); display:none">
+			<div>
+				<div class="pull-right danger">
+					<button type="button" class="close btn" style="padding:5px 10px;" onclick="$('#alert_comentario_registroed').hide(); $('#transparente').hide();">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+			</div>
+			<div style=" width: 100%; background-color:#0489B1; padding: 1px 0px 1px 10px;">
+				<h4 id="titulo_comentario" style="color:white;" >Editar Registro </h4>
+			</div>
+			<div class="col-xs-12" style="padding:15px 25px 15px 25px">
+				<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Cantidad</span>
+					    <input type="number" min="0" class="form-control" id="cantidad1" style="width:55px;">
+				    </div>
+				</div>
+				<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;margin-left: -50px;">
+					    <span class="input-group-addon alert-info">Fecha</span>
+					    <input type="date" class="form-control" id="fecha_pedido1"style="width:155px" >
+				    </div>
+				</div>
+				<div class="col-xs-12 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Descripcion</span>
+					    <input type="text" class="form-control" id="desc1" >
+				    </div>
+				</div>
+				<div class="col-xs-12 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Direccion</span>
+					    <input type="text" class="form-control" id="direccion1" >
+				    </div>
+				</div>
+				<div class="col-xs-12 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Recibe</span>
+					    <input type="text" class="form-control" id="recibe1" >
+				    </div>
+				</div>
+				<div class="col-xs-12 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Mensaje</span>
+					    <input type="text" class="form-control" id="nota1" >
+				    </div>
+				</div>
+				<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Precio</span>
+					    <input type="number" min="0" class="form-control" id="precio1" onchange="calcula_total_resto()">
+				    </div>
+				</div>
+				<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Envio</span>
+					    <select class="form-control campos_registro" id="costo_envio1" onchange="calcula_total_resto()">
+			            <option value="0">N/A</option>
+			            <option value="30">$ 30</option>
+			            <option value="50">$ 50</option>
+			            <option value="70">$ 70</option>
+			            <option value="90">$ 90</option>
+			            <option value="110">$ 110</option>
+			            <option value="otro">Otro</option>
+		            </select>
+				    </div>
+				</div>
+				<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Total</span>
+					    <input type="number" min="0" class="form-control" id="total1" disabled>
+				    </div>
+				</div>
+				<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+				    <div class="input-group" style="margin-bottom: 0px;">
+					    <span class="input-group-addon alert-info">Hora</span>
+					    <select class="form-control" id="hora1">
+						    <option value="7am ~ 9am"> 7am ~ 9am </option>
+						    <option value="9am ~ 11am"> 9am ~ 11am </option>
+						    <option value="11am ~ 1pm"> 11am ~ 1pm </option>
+						    <option value="1pm ~ 3pm"> 1pm ~ 3pm </option>
+						    <option value="3pm ~ 5pm"> 3pm ~ 5pm </option>
+						    <option value="5pm ~ 7pm"> 5pm ~ 7pm </option>
+					    </select>
+				    </div>
+				</div>
+				<div id="contenedor_abono">
+					<hr style="border:0.1px solid transparent; height:2px; background-image:linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0)); margin:300px 0px 20px 0px;">
+					<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+					    <div class="input-group" style="margin-bottom: 0px;">
+						    <span class="input-group-addon alert-info">Pagado</span>
+						    <input type="number" min="0" class="form-control" id="pagado1" disabled>
+					    </div>
+					</div>
+					<div class="col-xs-6 form-group" style="margin-bottom: 7px;">
+					    <div class="input-group" style="margin-bottom: 0px;">
+						    <span class="input-group-addon alert-info">Resto</span>
+						    <input type="number" min="0" class="form-control" id="restante1" disabled>
+					    </div>
+					</div>
+					<div class="col-xs-12 form-group" style="margin-bottom: 7px;">
+					    <div class="input-group" style="margin-bottom: 0px;">
+						    <span class="input-group-addon alert-info">Abono</span>
+						    <input type="number" min="0" class="form-control" value="0" id="abono1" onchange="calcula_abono()">
+					    </div>
+					</div>
+				</div>
+				
+				<label id="mensaje_usuario" style="display:none; margin-bottom:-20px; margin-left:78px; font-size:11px; color:#cc0d0d; margin-top:-1px;">
+			</div>
+			<div style = "margin:10px;">
+				<div style="margin-left:17%;">
+					<button type="button" class="btn btn-success" onclick="actualizar_datos()" style="float:left;"><span class="glyphicon glyphicon-success"></span> Guardar</button>
+					<button type="button" class="btn btn-warning" onclick="$('#transparente').hide();$('#alert_comentario_registroed').hide()" style="margin-left:15px; float:left; margin-bottom:15px;"><span class="glyphicon glyphicon-success"></span> Cancelar</button>
+					<button type="button" class="btn btn-danger" onclick="$('#transparente').hide();$('#alert_comentario_registroed').hide(); agrega_renglon(4) " style="margin-left:15px; float:left; margin-bottom:15px;" title="Eliminar registro"><span class="glyphicon glyphicon-success"></span> Eliminar</button>
+				</div>
+			</div>
+		</div>
+<!-- EDITAR REGISTRO -->
+				
+<!-- INGRESOS -->
+<div class="row">
+    <div class="col-xs-12 headers" style="margin-bottom:10px; margin-top:-2px;">
+	    <img src="logo1.png" style="width:105px; margin-left:43%; position:absolute; margin-top:-22px;" onclick="cambia_usuario()">
+	    <h4 style="font-size:16px; float:left; margin-left:15px"><span class="glyphicon glyphicon-usd"> </span> &nbsp; Ingresos </h4>
+    </div>
+    
+    <div class="col-xs-12" style="padding:10px 35px 15px 25px;" id="bloque_ingresos">
+        <div class="col-xs-1 form-group" style="width:90px;margin-right: -18px;">
+            <h5>Cantidad </h5>
+            <input type="number" min="0" class="form-control campos_registro" id="cantidad0" value="1" autofocus>
+        </div>
+        <div class="col-xs-4 form-group" style="margin-right: -18px; width:350px">
+            <h5>Descripcion de la venta </h5>
+            <input type="text" class="form-control campos_registro" id="desc0">
+        </div>
+        <div class="col-xs-2 form-group" style="margin-right: -18px;">
+            <h5>Envio </h5>
+            <select class="form-control" id="envio0" onchange="tipo_entrega($('#envio0').val())">
+	            <option value="1">Entrega inmediata</option>
+	            <option value="2">Recoge en tienda</option>
+	            <option value="3">Envio a domicilio</option>
+	            <option value="4">Envio Especial</option>
+            </select>
+        </div>
+        <div class="col-xs-2 form-group" style="width:140px;margin-right: -18px;">
+            <h5>Tipo pago </h5>
+            <select class="form-control" id="tipo_pago0">
+	            <option value="1">Efectivo</option>
+	            <option value="4">Tarjeta</option>
+	            <option value="2">Transferencia</option>
+	            <option value="3">Deposito</option>
+            </select>
+        </div>
+        <div class="col-xs-1 form-group" style="margin-right: -18px;">
+            <h5>Precio </h5>
+            <input type="number" min="0" min="0" class="form-control campos_registro" id="precio0" onchange="calcular_valor();" value="0">
+        </div>
+        <div id="envio_normal" class="col-xs-1 form-group datos_envio_bloque" style="display:none;margin-right:-18px; width:92px;">
+            <h5>Envio </h5>
+            <select class="form-control campos_registro" id="costo_envio0" onchange="calcular_valor()">
+	            <option value="0">N/A</option>
+	            <option value="30">$ 30</option>
+	            <option value="50">$ 50</option>
+	            <option value="70">$ 70</option>
+	            <option value="90">$ 90</option>
+	            <option value="110">$ 110</option>
+	            <option value="otro">Otro</option>
+            </select>
+        </div>
+         <div id="envio_especial" class="col-xs-1 form-group datos_envio_bloque" style="display:none;margin-right:-18px; width:92px;">
+            <h5>Envio </h5>
+            <select class="form-control campos_registro" id="costo_envio_especial" onchange="calcular_valor()">
+	            <option value="0">N/A</option>
+	            <option value="50">$ 50</option>
+	            <option value="70">$ 70</option>
+	            <option value="90">$ 90</option>
+	            <option value="110">$ 110</option>
+	            <option value="130">$ 130</option>
+	            <option value="otro">Otro</option>
+            </select>
+        </div>
+        <div class="col-xs-1 form-group" style="margin-right: -18px; width:84px;">
+            <h5>Dsco </h5>
+            <input type="number" min="0" step="5" min="0" max="15" class="form-control campos_registro" id="descto0" onchange="calcular_valor()" value="0">
+        </div>
+        <div class="col-xs-1 form-group" style="margin-right: 1px;">
+            <h5>Total </h5>
+            <input type="number" min="0" min="0" class="form-control campos_registro" id="total" style="font-weight:bold; width:75px;" value="0" disabled>
+        </div>
+        <div class="col-xs-1 form-group" style="margin-right: -18px;">
+            <h5>Pagado </h5>
+            <input type="number" min="0" min="0" class="form-control campos_registro" id="pago" style="font-weight:bold; width:74px;" value="0" onchange="calcula_resto()">
+        </div>
+        <div class="col-xs-1 form-group" style="margin-right: -18px;">
+            <h5>Restante </h5>
+            <input type="number" min="0" min="0" class="form-control campos_registro" id="resto" style="font-weight:bold; width:74px;" value="0" disabled>
+        </div>
+
+		<br><br>
+		<hr style="border:1; height:2px; background-image:linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));">
+		
+		<div class="row datos_envio_bloque datos_envia" style="padding:0px 20px 15px 20px; display:none">
+			<h4 style="margin-left: 17px;">Datos del cliente</h4>
+			<div class="col-xs-4 form-group" style="margin-bottom: 0px; width:350px">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Envia</span>
+				    <input type="text" class="form-control datos_envio" id="envia">
+			    </div>
+			</div>
+			<div class="col-xs-3 form-group" style="margin-bottom:0px; width:250px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Telefono</span>
+				    <input type="text" class="form-control datos_envio" id="telefono1">
+			    </div>
+			</div>
+			<div class="col-xs-3 form-group" style="margin-bottom: 0px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Entrega</span>
+				    <input type="date" class="form-control campos_registro" id="fecha_pedido0" value="<?php echo date('Y-m-d');?>">
+			    </div>
+			</div>
+			<div id="hora_normal" class="col-xs-2 form-group" style="margin-bottom: 0px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Hora</span>
+				    <select class="form-control" id="hora0">
+					    <option value="7am ~ 9am"> 7am ~ 9am </option>
+					    <option value="9am ~ 11am"> 9am ~ 11am </option>
+					    <option value="11am ~ 1pm"> 11am ~ 1pm </option>
+					    <option value="1pm ~ 3pm"> 1pm ~ 3pm </option>
+					    <option value="3pm ~ 5pm"> 3pm ~ 5pm </option>
+					    <option value="5pm ~ 7pm"> 5pm ~ 7pm </option>
+				    </select>
+			    </div>
+			</div>
+			<div id="hora_especial_div" class="col-xs-2 form-group" style="margin-bottom: 0px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Hora</span>
+				    <input class="form-control" type="text" id="hora_especial">
+			    </div>
+			</div>
+		</div>
+		
+		<div class="row datos_envio_bloque datos_recibe" style="padding:0px 20px 15px 20px; display:none">
+			<h4 style="margin-left: 17px;">Datos de quien recibe</h4>
+			<div class="col-xs-4 form-group" style="margin-bottom: 8px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Recibe</span>
+				    <input type="text" class="form-control datos_envio" id="recibe" >
+			    </div>
+			</div>
+			<div class="col-xs-3 form-group" style="margin-bottom: 8px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Telefono</span>
+				    <input type="text" class="form-control datos_envio" id="telefono2">
+			    </div>
+			</div>
+			<div class="col-xs-4 form-group" style="margin-bottom: 8px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Direccion</span>
+				    <input type="text" class="form-control datos_envio" id="direccion">
+			    </div>
+			</div>
+			<div class="col-xs-4 form-group" style="margin-bottom: 0px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Indicaciones</span>
+				    <input type="text" class="form-control datos_envio" id="indicaciones">
+			    </div>
+			</div>
+			<div class="col-xs-4 form-group" style="margin-bottom: 0px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Mensaje / Notas</span>
+				    <textarea type="text" class="form-control datos_envio" id="nota0" style="height:35px; width:555px;"></textarea>
+			    </div>
+			</div>
+		</div>
+
+        <div id="registrar" class="btn btn-success" onclick="registra_entrada()" style="float:right;">
+			<span class="glyphicon glyphicon-floppy-disk"> </span> Registrar
+		</div>
+	</div>
+</div>
+
+<!-- VENTAS DEL DIA -->
+<div class="row">
+    <div class="col-xs-12 headers" style="margin-bottom:10px;">
+	    <h4 style="font-size:16px; float:left; margin-left:15px; cursor:pointer" onclick="$('#tabla_ppal1').toggle('fast');"><span class="glyphicon glyphicon-signal"> </span> &nbsp; Ventas del dia </h4>
+	    <label id="num_ventas" style="float:right; margin:8px 20px 0px 0px;;"> </label>
+	    <label id="total_ventas" style="float:right; margin:8px;">  </label>
+    </div>
+    <div class="row" id="tabla_ppal1" style="height:100px;">
+	    <h5 id="noventas" style="text-align:center; margin-top:60px;">No hay ventas registradas</h5>
+			<table class="table table-striped table-hover table-responsive table-condensed" id="tabla1" style="margin-left:30px; width:96%; display:none">
+				<thead style="font-size:14px;">
+					<tr>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b>Cantidad</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Descripcion</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Envio</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Fecha entrega</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Direccion</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Recibe</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Mensaje</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Tel. envia</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Tel. recibe</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Total</b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b>Estado</b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b>Editar</b></th>
+					</tr>
+				</thead>
+				<tbody id="resultados_tabla_venta" style="font-size:12px;"></tbody>
+			</table>
+			<input type="checkbox" id="check_oculto" hidden checked>
+		</div>
+</div>
+
+<!-- VENTAS ESPECIALES -->
+<div class="row">
+    <div class="col-xs-12 headers" style="margin-bottom:10px;">
+	    <h4 style="font-size:16px; float:left; margin-left:15px; cursor:pointer" onclick="$('#tabla_ppal1_especial').toggle('fast');"><span class="glyphicon glyphicon-signal"> </span> &nbsp; Ventas Especiales </h4>
+		<label id="num_ventas_especiales" style="float:right; margin:8px 20px 0px 0px;;"> </label>
+	    <label id="total_ventas_especiales" style="float:right; margin:8px;">  </label>
+    </div>
+    <div class="row" id="tabla_ppal1_especial" style="height:100px;">
+	    <h5 id="noventas_especial" style="text-align:center; margin-top:60px;">No hay ventas registradas</h5>
+			<table class="table table-striped table-hover table-responsive table-condensed" id="tabla1_especial" style="margin-left:30px; width:96%; display:none">
+				<thead style="font-size:14px;">
+					<tr>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b>Cantidad</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Descripcion</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Envio</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Fecha entrega</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Direccion</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Envia</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Recibe</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Mensaje</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Tel. envia</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Tel. recibe</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Total</b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b>Estado</b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b>Editar</b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b class="glyphicon glyphicon-ok" style="zoom:1.2;"></b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b class="glyphicon glyphicon-shopping-cart" style="zoom:1.2;"></b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px;"><b>Quien</b></th>
+					</tr>
+				</thead>
+				<tbody id="resultados_tabla_venta_especial" style="font-size:12px;"></tbody>
+			</table>
+			<input type="checkbox" id="check_oculto_especial" hidden checked>
+		</div>
+</div>
+
+<!-- CREA TU RAMO -->
+<div class="row" style="display:none">
+    <div class="col-xs-12 headers" style="margin-bottom:10px;">
+	    <h4 style="font-size:16px; float:left; margin-left:15px; cursor:pointer" onclick="$('#contenedor_diseñar').toggle('fast');"><span class="glyphicon glyphicon-wrench"> </span> &nbsp; Diseñar ramo/arreglo </h4>
+    </div>
+    
+    <div id="contenedor_diseñar" class="row" style="padding:60px 45px 20px 45px; ">
+	    <div class="col-xs-2 form-group" style="margin-bottom: 0px;">
+		    <div class="input-group" style="margin-bottom: 0px;">
+			    <span class="input-group-addon alert-info">Tipo</span>
+			    <select type="text" class="form-control" id="catalogo">
+				    <option>Ramo</option>
+				    <option>Ramo de Novia / XVs</option>
+				    <option>Canasta     chica</option>
+				    <option>Canasta mediana</option>
+				    <option>Canasta grande</option>
+				    <option>Canasta jumbo</option>
+			    </select>
+		    </div>
+		</div>
+		<div class="col-xs-2 form-group" style="margin-bottom: 0px;">
+		    <div class="input-group" style="margin-bottom: 0px;">
+			    <span class="input-group-addon alert-info">Total</span>
+			    <input type="number" min="0" class="form-control " id="total_armado" value="0" disabled>
+		    </div>
+		</div>
+		
+		<div id="agregar" class="btn btn-primary" onclick="agrega_renglon(1)">
+			<span class="glyphicon glyphicon-plus-sign" style="zoom:1.4"> </span>
+		</div>
+		<div id="borrar" class="btn btn-danger" onclick="agrega_renglon(2)">
+			<span class="glyphicon glyphicon-minus-sign" style="zoom:1.4"> </span>
+		</div>
+		<div id="vender" class="btn btn-success" onclick="vender_ramo()" style="margin-right:20px">
+			<span class="glyphicon glyphicon-usd" style=""> </span> Vender
+		</div>
+		<div id="limpiar" class="btn btn-default" onclick="agrega_renglon(3)">
+			<span class="glyphicon glyphicon-erase" style=""> </span> Limpiar
+		</div>
+		
+		<br><br>
+		
+		<div id="contenedor_flores" class="row " style="padding:5px 20px 15px 15px;">
+			<div class="col-xs-2 form-group" style="margin-bottom: 0px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Cantidad</span>
+				    <input type="number" min="0" class="form-control crear_ramo" id="cantidad_ramo0" value="1" onchange="calcula_total(this.value, $('#cantidad_ramo0').attr('id'))">
+			    </div>
+			</div>
+			<div class="col-xs-3 form-group" style="margin-bottom: 0px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Flor</span>
+				    <?php
+		                $catarr = $mysqli->query("SELECT * FROM catalogo");
+						$inputmotivo ='<select class="form-control crear_ramo" id="flor0" onchange="calcula_total(this.value, $(\'#flor0\').attr(\'id\'))">';
+						$inputmotivo.='<option value="0"> Seleccione </option>';
+						while($rs=$catarr->fetch_row()){
+							$inputmotivo.= '<option value="'.$rs[2].'">'.$rs[1].'</option>';
+						}
+						$inputmotivo.= '</select>';
+						echo $inputmotivo;
+					?>
+			    </div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- CATALOGO -->
+<div class="row" style="display:none">
+    <div class="col-xs-12 headers" style="margin-bottom:10px;">
+	    <h4 style="font-size:16px; float:left; margin-left:15px; cursor:pointer" onclick="$('#contenedor_catalogo').toggle('fast');"><span class="glyphicon glyphicon-folder-open"> </span> &nbsp; Catalogo </h4>
+	    <label id="folio_descarga" style="float:right; margin:8px;"> </label>
+    </div>
+    <div id="contenedor_catalogo">
+	    
+    </div>
+</div>
+
+<!-- REPORTE -->
+<div class="row admin" id="reporte">
+    <div class="col-xs-12 headers" style="margin-bottom:10px;">
+	    <h4 style="font-size:16px; float:left; margin-left:15px; cursor:pointer" onclick="$('#bloque_reporte').toggle('fast');"><span class="glyphicon glyphicon-list-alt"> </span> &nbsp; Reporte </h4>
+	    <label id="folio_descarga" style="float:right; margin:8px;"> </label>
+    </div>
+    
+    <div class="col-xs-12" style="padding:10px 45px 0px 30px" id="bloque_reporte">
+       
+		<div class="row" style="margin-bottom:10px; ">
+			<div class="col-xs-3 form-group" style="margin-bottom: 0px; margin-right: -18px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Palabra clave</span>
+				    <input type="text" class="form-control" id="busqueda" style="width:170px;">
+				    <input type="text" class="form-control" id="id_busqueda" style="width:170px; display:none">
+			    </div>
+			    <div class="list-group" id="listabusqueda" style="width:280px; z-index:1001; opacity:0.95; position:absolute"></div>
+			    <input id="id_empleado" style="display: none">
+			</div>
+			<div class="col-xs-3 form-group" style="margin-bottom:0px; width:280px; margin-right:-18px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Fecha Inicio</span>
+				    <input id="fechai" type="date" class="form-control" value="<?php echo date('Y-m-d', strtotime("-1 week")) ?>" style="width:152px;">
+			    </div>
+			    <div class="list-group" id="listabusqueda" style="width:300px; z-index:1001; opacity:0.95; position:absolute"></div>
+			</div>
+			<div class="col-xs-3 form-group" style="margin-bottom:0px; width:280px; margin-right:-32px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Fecha Fin</span>
+				    <input id="fechaf" type="date" class="form-control" value="<?php echo date('Y-m-d') ?>" style="width:152px;">
+			    </div>
+			    <div class="list-group" id="listabusqueda" style="width:300px; z-index:1001; opacity:0.95; position:absolute"></div>
+			</div>
+			<div class="col-xs-2 form-group" style="margin-bottom:0px; margin-right:-22px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Estado</span>
+				    <select class="form-control" id="estado_reporte">
+					    <option>Seleccione</option>
+					    <option>Pagado</option>
+					    <option>Adeudo</option>
+				    </select>
+			    </div>
+			    <div class="list-group" id="listabusqueda" style="width:300px; z-index:1001; opacity:0.95; position:absolute"></div>
+			</div>
+			<div id="buscar" class="btn btn-primary" onclick="cargar_tabla_busqueda(1)">
+				<span class="glyphicon glyphicon-search"> </span> Buscar
+			</div>
+			<div class="col-xs-2 form-group" style="margin-bottom:0px; width:162px; margin-right:-8px;">
+			    <div class="input-group" style="margin-bottom: 0px;">
+				    <span class="input-group-addon alert-info">Total</span>
+				    <input type="text" class="form-control" id="total_busqueda" disabled>
+			    </div>
+			</div>
+			<h5 id="realicebusqueda" style="text-align:center; margin-top:30px;">Escriba una palabra clave o busque por fecha</h5>
+			<table class="table table-striped table-responsive table-condensed" id="tabla_reporte" style="display:none; margin-top:20px;">
+				<thead style="font-size:14px;">
+					<tr>
+						<th style="color:#2c6aa0; text-align:center; width:1px"><b>Fecha registro</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Envio</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Cantidad</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Descripcion</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Direccion</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Envia</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Tel. envia</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Estado</b></th>
+						<th style="color:#2c6aa0; text-align:center"><b>Total</b></th>
+						<th style="color:#2c6aa0; text-align:center; width:1px"><b>Editar</b></th>
+					</tr>
+				</thead>
+				<tbody id="resultados_tabla_reporte" style="font-size:12px;"></tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+</form>
+</div><!--End container--fluid-->
+</body>
+
+<script>
+	$( document ).ready(function() {
+		$.getJSON("ajax.php",{tipo:"cargar"},function(data){
+		    $("#total_ventas").html("Ventas del dia: "+data[0]+" ~");
+		    if(data[1]==null){
+		    		data[1] == 0;
+		    }
+		    $("#num_ventas").html("$ "+data[1]);
+		});
+		$.getJSON("ajax.php",{tipo:"cargar_especiales"},function(data){
+		    $("#total_ventas_especiales").html("Ventas Especiales: &nbsp;"+data[0]);
+		});
+		cargar_tabla_ventas();
+		cargar_tabla_ventas_especial();
+	});
+	
+	function cambia_usuario(){
+		$("#titulo_comentario").text("Camiar de usuario");
+		$("#alert_comentario_usuario").show();
+		$("#transparente").show();
+		$("#usuario").focus();
+	}
+	
+// 	EVENTOS CON TECLAS
+	$('#contraseña').keyup(function(e){
+	    if(e.keyCode == 13){
+	        login();
+	    }
+	});
+	$(document).keyup(function(e){
+	    if(e.which==27) {
+	        $("#alert_comentario_usuario").hide();
+	        $("#alert_comentario_registro").hide();
+	        $("#alert_comentario_registroed").hide();
+	        $("#transparente").hide();
+	    }
+	});
+	$('#transparente').click(function() {
+		$("#alert_comentario_usuario").hide();
+		$("#alert_comentario_registro").hide();
+		$("#alert_comentario_registroed").hide();
+	    $("#transparente").hide();
+	});
+	
+	function login(){
+		user = $("#usuario").val();
+		pass = $("#contraseña").val();
+		
+		$.getJSON("ajax.php",{tipo:"login", user:user, pass:pass},function(data){
+			if(data == 1){	
+				$("#mensaje_usuario").hide();		
+				$("#verifica_login").val(data);
+				$("#alert_comentario_usuario").hide();
+				$("#transparente").hide();
+				$(".admin").show();
+				$("#contraseña").val("");
+				$("#usuario").val("");
+			}else{
+				$("#mensaje_usuario").show();
+				$("#mensaje_usuario").html("Usuario o contraseña incorrecta");
+				setTimeout(function(){ $("#mensaje_usuario").hide(); }, 1600);
+			}
+		});
+	}
+
+	function agrega_renglon(tipo){
+		aux = 1;
+		aux_val = parseInt($("#valor_aux").val());
+		if(tipo == 1){
+			$("#contenedor_flores").append("<div style='float:left'><div class='col-xs-2 form-group grupo"+(aux_val+1)+"' style='margin-bottom: 0px;'> "+
+			    "<div class='input-group' style='margin-bottom: 0px;'> "+
+				"    <span class='input-group-addon alert-info'>Cantidad</span> "+
+				"    <input type='number' class='form-control crear_ramo' id='cantidad_ramo"+(aux_val+1)+"' value='1' onchange=\"calcula_total(this.value,$('#cantidad_ramo"+(aux_val+1)+"').attr('id'))\"> "+
+			    "</div> "+
+				"</div> "+
+				"<div class='col-xs-3 form-group grupo"+(aux_val+1)+"' style='margin-bottom: 0px;'> "+
+				"    <div class='input-group' style='margin-bottom: 0px;'> "+
+				"	    <span class='input-group-addon alert-info'>Flor</span> "+				
+				"<select class='form-control crear_ramo' id='flor"+(aux_val+1)+"' onchange=\"calcula_total(this.value, $('#flor"+(aux_val+1)+"').attr('id'))\"><option value='0'> Seleccione </option><option value='25'>Rosa</option><option value='40'>Gerbera</option><option value='50'>Girasol</option><option value='60'>Lily</option><option value='70'>Lily Oriental</option><option value='55'>Tulipan</option><option value='8'>Alstromerias</option><option value='8'>Margaritas</option><option value='8'>Claveles</option><option value='16'>Margaritas Spider</option><option value='16'>Perritos</option><option value='5'>Montecasino</option></select>"+
+				"    </div> "+
+				"</div> "+
+				"<input class='suma_flor_cant grupo"+(aux_val+1)+"' id='suma_oculto"+(aux_val+1)+"' style='display:none'>"
+			    );
+			$("#borrar"+aux_val).remove();
+			$("#valor_aux").val(aux_val+1);
+		}
+		
+		if(tipo == 2){
+			$(".grupo"+aux_val).remove();
+			$("#valor_aux").val(aux_val-1);
+		}
+
+		if(tipo == 3){
+			$("#contenedor_flores").html("<div style='float:left'><div class='col-xs-2 form-group' style='margin-bottom: 0px;'> "+
+			    "<div class='input-group' style='margin-bottom: 0px;'> "+
+				"    <span class='input-group-addon alert-info'>Cantidad</span> "+
+				"    <input type='number' class='form-control crear_ramo' id='cantidad_ramo0' value='1' onchange=\"calcula_total(this.value,$('#cantidad_ramo0').attr('id'))\"> "+
+			    "</div> "+
+				"</div> "+
+				"<div class='col-xs-3 form-group' style='margin-bottom: 0px;'> "+
+				"    <div class='input-group' style='margin-bottom: 0px;'> "+
+				"	    <span class='input-group-addon alert-info'>Flor</span> "+
+				"<select class='form-control crear_ramo' id='flor0' onchange=\"calcula_total(this.value, $('#flor0').attr('id'))\"><option value='0'> Seleccione </option><option value='25'>Rosa</option><option value='40'>Gerbera</option><option value='50'>Girasol</option><option value='60'>Lily</option><option value='70'>Lily Oriental</option><option value='55'>Tulipan</option><option value='8'>Alstromerias</option><option value='8'>Margaritas</option><option value='8'>Claveles</option><option value='16'>Margaritas Spider</option><option value='16'>Perritos</option><option value='5'>Montecasino</option></select>"+
+				"    </div> "+
+				"</div> "
+			);
+			$("#valor_aux").val(0);
+			$("#total_armado").val(0);
+			$("#catalogo").val("Ramo");
+		}
+		
+		if(tipo == 4){
+			id_renglon = $("#id_renglon").val();
+			$.getJSON("ajax.php",{tipo:"elimina_renglon", id:id_renglon},function(data){
+				$("#eliminado").show("fast");
+				setTimeout(function(){
+					$("#eliminado").hide("fast");
+				}, 3200);
+				cargar_tabla_ventas();
+				cargar_tabla_ventas_especial();
+			});
+		}
+	}
+	
+	function editar_renglon(id){
+		$.getJSON("ajax.php",{tipo:"editar_renglon", id:id},function(data){
+			$("#alert_comentario_registroed").show();
+			$("#transparente").show();
+			$("#id_renglon").val(id);
+			$("#abono1").val(0);
+			$("#cantidad1").val(data[0]);
+			$("#desc1").val(data[1]);
+			$("#fecha_pedido1").val(data[2]);
+			$("#direccion1").val(data[3]);
+			$("#recibe1").val(data[4]);
+			$("#nota1").val(data[5]);
+			$("#precio1").val(data[6]);
+			$("#costo_envio1").val(data[7]);
+			$("#total1").val(parseInt(data[6])+parseInt(data[7]));
+			$("#pagado1").val(data[8]);
+			$("#pagado1_o").val(data[8]);
+			$("#restante1").val(data[9]);
+			$("#hora1").val(data[10]);
+		});
+	}
+	
+	function actualizar_datos(){
+		fecha_entrega1 = $("#fecha_pedido1").val();
+		costo_envio1 = $("#costo_envio1").val();
+		direccion1 = $("#direccion1").val();
+		cantidad1 = $("#cantidad1").val();
+		restante = $("#restante1").val();
+		pagado = $("#pagado1").val();
+		recibe1 = $("#recibe1").val();
+		precio1 = $("#precio1").val();
+		total1 = $("#total1").val();
+		desc1 = $("#desc1").val();
+		nota1 = $("#nota1").val();
+		hora1 = $("#hora1").val();
+		id = $("#id_renglon").val();
+
+		$.getJSON("ajax.php",{tipo:"actualizar_datos", id:id, fecha_entrega1:fecha_entrega1, costo_envio1:costo_envio1, direccion1:direccion1, cantidad1:cantidad1, recibe1:recibe1, precio1:precio1, total1:total1, desc1:desc1, nota1:nota1, pagado:pagado, restante:restante, hora1:hora1},function(data){
+			$("#transparente").hide();
+			$("#alert_comentario_registroed").hide();
+			$("#actualizado").show("fast");
+			setTimeout(function(){
+				$("#actualizado").hide("fast");
+			}, 3200);
+			cargar_tabla_ventas();
+			cargar_tabla_ventas_especial();
+		});
+	}
+	
+	function vender_ramo(){
+		aux = $("#valor_aux").val();
+		venta ="";
+		for(x=0; x<=aux ; x++){
+			venta += $("#cantidad_ramo"+x).val()+" "+$("#flor"+x+" option:selected").text()+", ";
+		}
+
+		$("#desc0").val($("#catalogo").val()+' con '+venta.slice(0, -2));
+		$("#precio0").val($("#total_armado").val());
+		$("#total").val($("#total_armado").val());
+		$("#pago").val($("#total_armado").val());
+		agrega_renglon(3);
+	}
+
+	function calcula_total(val, id){
+		aux = id.match(/(\d+)/g);
+		guarda_valor =  $("#flor"+aux).val() * $("#cantidad_ramo"+aux).val();
+		
+		$("#suma_oculto"+aux).val(parseInt(guarda_valor));
+		
+		var sum = 0;
+		$('.suma_flor_cant').each(function(){
+		    sum += parseFloat(this.value);
+		});
+		$("#total_armado").val(sum);
+	}
+	
+	function calcula_resto(){
+		total = parseInt($("#total").val());
+		pago = parseInt($("#pago").val());
+		
+		$("#resto").val(total-pago);
+	}
+
+	function calcular_valor(tipo, valor){
+		valor1 = parseInt($("#precio0").val());
+		valor2 = parseInt($("#costo_envio0").val());
+		valorE = parseInt($("#costo_envio_especial").val());
+		desc1  = parseInt($("#descto0").val());
+
+		valor_envio = (valorE != 0) ? valorE : valor2;			
+		valor3 = (valor1-((desc1/100)*valor1)+valor_envio);
+
+		$("#total").val(valor3);
+		$("#pago").val(valor3);
+	}
+	
+	function calcula_total_resto(){
+		$('#total1').val(parseInt($('#costo_envio1').val())+parseInt($('#precio1').val()));
+		$("#restante1").val(parseInt($("#total1").val())-parseInt($("#pagado1").val()));
+	}
+	
+	function calcula_abono(){
+		$('#pagado1').val(parseInt($("#pagado1_o").val())+parseInt($("#abono1").val()));
+		$('#restante1').val(parseInt($("#total1").val())-parseInt($("#pagado1").val()));
+	}
+	
+	function registra_entrada(){
+		if($("#desc0").val()!=""){
+			$("#alert_comentario_registro").show();
+			$("#transparente").show();
+		}else{
+			$("#falta").show("fast");
+			setTimeout(function(){
+				$("#falta").hide("fast");
+			}, 3200);
+		}
+	}
+	
+	function guardar_registro(){
+		cant    = $("#cantidad0").val();
+		desc    = $("#desc0").val();
+		tipo_pago = $("#tipo_pago0").val();
+		precio  = $("#precio0").val();
+		envio   = $("#envio0").val();
+		c_envio = $("#costo_envio0").val();
+		total   = $("#total").val();
+		envia   = $("#envia").val();
+		tel1    = $("#telefono1").val();
+		hora    = $("#hora0").val();
+		recibe  = $("#recibe").val();
+		tel2    = $("#telefono2").val();
+		dir     = $("#direccion").val();
+		indi    = $("#indicaciones").val();
+		nota    = $("#nota0").val();
+		fecha   = $("#fecha_pedido0").val();
+		descto  = $("#descto0").val();
+		pago	= $("#pago").val();
+		resto	= $("#resto").val();
+		c_envio_e = $("#costo_envio_especial").val();
+		hora_e  = $("#hora_especial").val();
+		
+		$.getJSON("ajax.php",{tipo:"guardar", cant:cant, desc:desc, tipo_pago:tipo_pago, precio:precio, envio:envio, total:total, c_envio:c_envio, envia:envia, tel1:tel1, hora:hora, recibe:recibe, tel2:tel2, dir:dir, indi:indi, nota:nota, fecha:fecha, descto:descto, pago:pago, resto:resto, c_envio_e:c_envio_e, hora_e:hora_e},function(data){
+			cargar_tabla_ventas();
+			cargar_tabla_ventas_especial();
+			
+			$("#cantidad0").val(1);
+			$("#desc0").val("");
+			$("#envio0").val(1);
+			$("#tipo_pago0").val("1");
+			$("#hora0").val("N/A");
+			$("#precio0").val(0);
+			$(".datos_recibe").hide();
+			$(".datos_envia").hide();
+			$(".datos_envio").val("");
+			$("#descto0").val(0);
+			$("#costo_envio0").val(0);
+			$("#total").val(0);
+			
+			$("#alert_comentario_registro").hide();
+			$("#transparente").hide();
+			
+			$("#guardado").show("fast");
+			setTimeout(function(){
+				$("#guardado").hide("fast");
+			}, 3200);
+		});
+	}
+	
+	function tipo_entrega(tipo){
+		if(tipo == 2){ // RECOGE EN TIENDA
+			$(".datos_envia").show();
+			$(".datos_recibe").hide();
+			$("#envio_normal").hide();
+			$("#envio_especial").hide();
+		}else if(tipo == 3){ // ENVIO DOMICILIO
+			$(".datos_envio_bloque").show();
+			$("#envio_especial").hide();
+			$("#costo_envio_especial").val("0")
+			$("#hora_normal").show();
+			$("#hora_especial_div").hide();
+		}else if(tipo == 4){ // ENVIO ESPECIAL
+			$(".datos_envio_bloque").show();
+			$("#envio_especial").show();
+			$("#envio_normal").hide();
+			$("#hora_normal").hide();
+			$("#hora_especial_div").show();
+		}else{
+			$("#envio_normal").hide();
+			$(".datos_envia").hide();
+			$(".datos_envio_bloque").hide();
+		}
+	}
+	
+	function listo(id, aux){
+		$.getJSON("ajax.php",{tipo:"listo", id:id, aux:aux},function(){
+			cargar_tabla_ventas_especial();
+		});
+	}
+	
+	function entregado(id, aux){
+		$.getJSON("ajax.php",{tipo:"entregado", id:id, aux:aux},function(){
+			cargar_tabla_ventas_especial();
+		});
+	}
+	
+	function selecciona_quien(id){
+		quien = $("#quien"+id).val();
+		$.getJSON("ajax.php",{tipo:"quien", id:id, quien:quien},function(){
+			cargar_tabla_ventas_especial();
+		});
+	}
+	
+	function cargar_tabla_ventas(){
+		$.getJSON("ajax.php",{tipo:"cargar_tabla_ventas"},function(respuesta){
+			renglon = "";
+
+			for(i=0; i<respuesta[0].length; i++){
+				renglon=renglon+' <tr>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[0][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[1][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[2][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[3][i]+' <b>-</b> '+respuesta[4][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[5][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[6][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[7][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[8][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[9][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>$ '+respuesta[10][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span> '+respuesta[14][i]+' </td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center;"> '+
+				'<div id="agregar" class="btn btn-default" onclick="editar_renglon('+respuesta[11][i]+')" style="zoom:0.7"> '+
+				'	<span class="glyphicon glyphicon-edit"> </span> '+
+				'</div> '+
+				'</td>';
+			}
+			$("#resultados_tabla_venta").html(""+renglon);
+			$("#tabla_ppal1").css("height","auto");
+			$("#noventas").css("display","none");
+			$("#tabla1").css("display","inline-table");
+		});
+	}
+	
+	function cargar_tabla_ventas_especial(){
+		$.getJSON("ajax.php",{tipo:"cargar_tabla_ventas_especial"},function(respuesta){
+			renglon = "";
+
+			for(i=0; i<respuesta[0].length; i++){
+				renglon=renglon+' <tr>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[0][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[1][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[2][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[3][i]+' <b>-</b> '+respuesta[4][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[5][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[6][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[7][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[8][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[9][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[10][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span>$ '+respuesta[11][i]+'</td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center"><span> '+respuesta[15][i]+' </td>';
+				renglon = renglon+'<td style="color:#000000; text-align:center;"> '+
+				'<div id="agregar" class="btn btn-default" onclick="editar_renglon('+respuesta[12][i]+')" style="zoom:0.7"> '+
+				'	<span class="glyphicon glyphicon-edit"> </span> '+
+				'</div> '+
+				'</td>'
+				if(respuesta[16][i] == 1){
+					renglon = renglon+'<td style="color:#000000; text-align:center"><input checked class="form-control" id="listo'+respuesta[12][i]+'" onclick="listo('+respuesta[12][i]+', 1)" type="checkbox" style="zoom: 0.5;"> </td>';
+				}else{
+					renglon = renglon+'<td style="color:#000000; text-align:center"><input class="form-control" id="listo'+respuesta[12][i]+'" onclick="listo('+respuesta[12][i]+', 2)" type="checkbox" style="zoom: 0.5;"> </td>';
+				}
+				if(respuesta[17][i] == 1){
+					renglon = renglon+'<td style="color:#000000; text-align:center"><input checked class="form-control" id="entregado'+respuesta[12][i]+'" onclick="entregado('+respuesta[12][i]+', 1)" type="checkbox" style="zoom: 0.5;"> </td>';
+				}else{
+					renglon = renglon+'<td style="color:#000000; text-align:center"><input class="form-control" id="entregado'+respuesta[12][i]+'" onclick="entregado('+respuesta[12][i]+', 2)" type="checkbox" style="zoom: 0.5;"> </td>';
+				}
+				renglon = renglon+'<td style="color:#000000; text-align:center; width:1;"><select id="quien'+respuesta[12][i]+'" onchange="selecciona_quien('+respuesta[12][i]+')"><option value="0">Select</option><option value="1">Bere</option><option value="2">Iris</option><option value="3">Camila</option><option value="4">Otro</option></select> </td>';
+
+			}
+
+			$("#resultados_tabla_venta_especial").html(""+renglon);
+			$("#tabla_ppal1_especial").css("height","auto");
+			$("#noventas_especial").css("display","none");
+			$("#tabla1_especial").css("display","inline-table");
+			
+			for(i=0; i<respuesta[0].length; i++){
+				$("#quien"+respuesta[12][i]).val(respuesta[18][i]);
+			}
+		});
+	}
+	
+	function cargar_tabla_busqueda(aux, id){
+		if(aux == 1){
+			fecha1 = $("#fechai").val();
+			fecha2 = $("#fechaf").val();
+			estado = $("#estado_reporte").val();
+			$.getJSON("ajax.php",{tipo:"cargar_tabla_busqueda",id_busqueda:"", aux:aux, fecha1:fecha1, fecha2:fecha2, estado:estado},function(respuesta){
+				renglon = "";
+
+				for(i=0; i<respuesta[0].length; i++){
+					renglon=renglon+' <tr>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[0][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[1][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[2][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[3][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[4][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[5][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[7][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span> '+respuesta[10][i]+' </td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>$ '+respuesta[8][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center;"> '+
+				'<div id="agregar" class="btn btn-default" onclick="editar_renglon('+respuesta[11][i]+')" style="zoom:0.7"> '+
+				'	<span class="glyphicon glyphicon-edit"> </span> '+
+				'</div> '+
+				'</td>';
+				}
+				$("#resultados_tabla_reporte").html(""+renglon);
+				$("#tabla_ppal").css("height","auto");
+				$("#realicebusqueda").css("display","none");
+				$("#tabla_reporte").css("display","inline-table");
+				$("#total_busqueda").val("$ "+respuesta[9]);
+			});
+		}
+		
+		if(aux == 2){
+			id_busqueda = $("#id_busqueda").val();
+			$.getJSON("ajax.php",{tipo:"cargar_tabla_busqueda", aux:aux, id_busqueda:id_busqueda},function(respuesta){
+				renglon = "";
+				
+				for(i=0; i<respuesta[0].length; i++){
+					renglon=renglon+' <tr>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[0][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[1][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[2][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[3][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[4][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[5][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>'+respuesta[7][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span> '+respuesta[10][i]+' </td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center"><span>$ '+respuesta[8][i]+'</td>';
+					renglon = renglon+'<td style="color:#000000; text-align:center;"> '+
+				'<div id="agregar" class="btn btn-default" onclick="editar_renglon('+respuesta[11][i]+')" style="zoom:0.7"> '+
+				'	<span class="glyphicon glyphicon-edit"> </span> '+
+				'</div> '+
+				'</td>';
+				}
+				$("#resultados_tabla_reporte").html(""+renglon);
+				$("#tabla_ppal").css("height","auto");
+				$("#realicebusqueda").css("display","none");
+				$("#tabla_reporte").css("display","inline-table");
+			});
+		}
+	}
+
+	var timerR;
+	var ubicacion_req=0;
+	$('#busqueda').keyup(function(e){
+		busqueda=$('#busqueda').val();
+		if (busqueda!="" && busqueda.length>2) {
+			tecla=e.keyCode;
+			if((tecla!=38)&&(tecla!=40)&&(tecla!=39)&&(tecla!=37)&&(tecla!=91)&&(tecla!=13)&&(tecla!=27)){
+				$("#listabusqueda").html("");// borrar los mensajes de lista
+				mensaje=document.createElement("a");
+				mensaje.className="list-group-item";
+				mensaje.innerHTML="Espere...";
+				document.getElementById("listabusqueda").appendChild(mensaje);
+				$("#listabusqueda").show();//muestra el mensaje en la lista de cliente
+				clearTimeout(timerR);
+				timerR = setTimeout(function(event){
+					if ($("#busqueda").val()!=="") {//realiza consulta solo si hay valor de cliente
+						$.getJSON("ajax.php",{tipo:"buscador",busqueda:busqueda},function(respuesta){
+							cadena="";
+							for (i=0;i<respuesta.length;i++) {
+								cadena=cadena+respuesta[i];
+							}
+							ubicacion_req=0;
+							$("#listabusqueda").html(cadena);
+						});
+					}else{
+						$("#listabusqueda").hide();
+					}
+				},1000);
+			}else{
+			    desplazamiento_teclas(tecla,"listabusqueda");//enter arriba abajo
+			}
+		}
+	});
+
+	function desplazamiento_teclas(tecla,lista) {
+	    cantidad=$("#"+lista).children().length;
+	    if(cantidad>0){//enter
+			if(ubicacion_req != 0){
+			    $("#"+lista+" a:nth-child("+ubicacion_req+")").css("color","#555").css("background","white");
+			}
+			if(tecla == 13){//enter  //cantidad=$("#listabusqueda").children()[0].click();
+			    if(ubicacion_req <= 1){
+					cantidad = $("#"+lista+"").children()[0].click();
+			    }else{
+					cantidad = $("#"+lista+"").children()[(ubicacion_req-1)].click();
+			    }
+			}else if(tecla == 40){//down
+			    if(ubicacion_req == cantidad){
+					ubicacion_req = 1;
+			    }else{ubicacion_req++;}
+			    	$("#"+lista+" a:nth-child("+ubicacion_req+")").css("color","white").css("background","#31708f");
+			}else if(tecla == 38){//up
+			    if(ubicacion_req <= 1){
+					ubicacion_req = cantidad;
+			    }else{ubicacion_req--;}
+			    	$("#"+lista+" a:nth-child("+ubicacion_req+")").css("color","white").css("background","#31708f");
+			}
+	    }
+	}
+</script>
